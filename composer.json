@@ -1,0 +1,31 @@
+{
+    "name": "croox/statamic-meilisearch",
+    "autoload": {
+        "psr-4": {
+            "Croox\\StatamicMeilisearch\\": "src"
+        }
+    },
+    "require": {
+        "elvenstar/statamic-meilisearch": "^2.0"
+    },
+    "extra": {
+        "statamic": {
+            "name": "Statamic Meilisearch",
+            "description": "Statamic Meilisearch addon"
+        },
+        "laravel": {
+            "providers": [
+                "Croox\\StatamicMeilisearch\\ServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "require-dev": {
+        "vimeo/psalm": "^5.15"
+    }
+}
