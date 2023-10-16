@@ -5,9 +5,12 @@ namespace Croox\StatamicMeilisearch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Meilisearch\Client;
+use Statamic\Search\Result;
 
 class Index extends IndexWithBackportedPendingPullRequests
 {
+    private const DEFAULT_SNIPPET_LENGTH = 100;
+
     public function __construct(Client $client, string $name, array $config)
     {
         parent::__construct($client, $this->prefixIndexNameWithEnvironmentSpecifics($name, $config), $config);
@@ -22,8 +25,57 @@ class Index extends IndexWithBackportedPendingPullRequests
      */
     public function searchUsingApi($query, $filters = [], $options = [])
     {
-        $filters = array_replace($this->config['query_options'] ?? [], $filters);
-        return parent::searchUsingApi($query, $filters, $options);
+        $filters = $this->preProcessQueryOptions($filters);
+        $results = parent::searchUsingApi($query, $filters, $options);
+        return $results->map(fn(array $result) => $this->postProcessQueryResult($result, $filters));
+    }
+
+    private function preProcessQueryOptions(array $queryOptions): array
+    {
+        $queryOptions = array_replace($this->config['query_options'] ?? [], $queryOptions);
+
+        if ($this->getSnippetLength($queryOptions) !== null) {
+            $queryOptions['attributesToHighlight'] = $queryOptions['attributesToHighlight'] ?? [ '*' ];
+            $queryOptions['highlightPreTag'] = $queryOptions['highlightPreTag'] ?? '<mark>';
+            $queryOptions['highlightPostTag'] = $queryOptions['highlightPostTag'] ?? '</mark>';
+        }
+
+        return $queryOptions;
+    }
+
+    private function postProcessQueryResult(array $result, array $queryOptions): array
+    {
+        $snippetLength = $this->getSnippetLength($queryOptions);
+        if ($snippetLength !== null) {
+            $extractor = new SnippetExtractor(
+                $snippetLength,
+                $queryOptions['highlightPreTag'],
+                $queryOptions['highlightPostTag']
+            );
+            $result['search_snippets'] = $extractor->extractSearchSnippetsFromMeilisearchResult(
+                $result['_formatted'] ?? [],
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $queryOptions
+     * @return int<1, max>
+     */
+    private function getSnippetLength(array $queryOptions): ?int
+    {
+        if (empty($this->config['snippet_length']) && empty($queryOptions['attributesToHighlight'])) {
+            return null;
+        }
+
+        $length = $this->config['snippet_length'] ?? self::DEFAULT_SNIPPET_LENGTH;
+        if ($length < 1) {
+            return null;
+        }
+
+        return $length;
     }
 
     /**
@@ -41,7 +93,7 @@ class Index extends IndexWithBackportedPendingPullRequests
         $appName = config('app.name');
         $environment = config('app.env');
 
-        $parts = [$appName, $environment, $name];
+        $parts = [ $appName, $environment, $name ];
         $parts = array_map(fn(string $part) => preg_replace('/[^a-z0-9]/', '-', strtolower($part)), $parts);
         return implode('__', $parts);
     }
@@ -54,19 +106,35 @@ class Index extends IndexWithBackportedPendingPullRequests
 
         $appName = config('app.name');
         if ($appName === 'Statamic' || $appName === 'Statamic Peak') {
-            throw new ConfigurationException(sprintf(
-                'The croox meilisearch integration requires a unique app name to be set, but detected "%s". Please update your .env file in order to use a custom app name.',
-                $appName
-            ));
+            throw new ConfigurationException(
+                sprintf(
+                    'The croox meilisearch integration requires a unique app name to be set, but detected "%s". Please update your .env file in order to use a custom app name.',
+                    $appName
+                )
+            );
         }
 
         if (isset($config['index_name']) && !preg_match('/^[a-z\-_]$/', $config['index_name'])) {
-            throw new ConfigurationException(sprintf(
-                'The croox meilisearch integration requires the index_name to only contain lowercase letters, dashes and underscores, but detected "%s". Please update your config file.',
-                $config['index_name']
-            ));
+            throw new ConfigurationException(
+                sprintf(
+                    'The croox meilisearch integration requires the index_name to only contain lowercase letters, dashes and underscores, but detected "%s". Please update your config file.',
+                    $config['index_name']
+                )
+            );
         }
 
         Cache::forever('croox_meilisearch_config_validated', true);
+    }
+
+    /** @return array<string, mixed> */
+    public function extraAugmentedResultData(Result $result)
+    {
+        $extra = parent::extraAugmentedResultData($result);
+        $extra['rawResult'] = $result->getRawResult();
+        if (isset($extra['rawResult']['search_snippets'])) {
+            $extra['search_snippets'] = $extra['rawResult']['search_snippets'];
+        }
+
+        return $extra;
     }
 }

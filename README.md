@@ -39,3 +39,58 @@ by setting the `index_name` config value.
 You can set custom query options in the config file by using the 
 `query_options` key. These query options will be sent to meilisearch
 on every search request.
+
+```php
+// config/statamic/search.php
+'indexes' => [
+    'default' => [
+        // See https://www.meilisearch.com/docs/reference/api/search
+        'query_options' => [
+            'sort' => 'title:desc'
+        ] 
+    ]
+]
+```
+
+### Raw Results
+You can access the raw result from meilisearch by accessing `rawResult`. This can
+be helpful to get formatted results combined with `query_options`.
+
+```html
+{{ search:results as="results"}}
+    {{ results }}
+        <h1>{{ rawResult._formatted.title }}</h1>
+    {{ /results }}
+{{ /search:results }}
+```
+
+### Search snippets
+If configured, the search results will contain a `search_snippets` array that mimics the
+`search_snippets` of the `local` driver: It contains highlighted matches of the search term
+in the results. This can be activated by using `snippet_length` in the configuration.
+
+```php
+// config/statamic/search.php
+'indexes' => [
+    'default' => [
+        'snippet_length' => 50
+    ]
+]
+```
+
+NOTE 1: This feature is implemented by leveraging meilisearches highlighting feature. Enabling this implies the following
+        `query_options`: `attributesToHighlight=['*']`, `highlightPreTag='<mark>'`, `highlightPostTag='</mark>'`. You can
+        customize them if you want to.
+
+NOTE 2: In contrast to the `local` driver, the `search_snippets` array will contain the Tag marking the search
+      query already, making `| mark` in the template unnecessary.
+
+```html
+{{ search:results as="results"}}
+    {{ results }}
+        <h1>{{ title }}</h1>
+        {{ search_snippets | implode('...') | substr(0, 300) }}
+    {{ /results }}
+{{ /search:results }}
+```
+```
