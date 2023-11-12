@@ -20,6 +20,9 @@ class ServiceProvider extends AddonServiceProvider
         $this->app->register(StatamicMeiliSearchServiceProvider::class);
 
         $this->registerIndex();
+        $this->commands([
+            GenerateApiKeyCommand::class,
+        ]);
     }
 
     private function registerIndex(): void

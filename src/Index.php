@@ -5,6 +5,8 @@ namespace Croox\StatamicMeilisearch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Meilisearch\Client;
+use Meilisearch\Endpoints\Keys;
+use Meilisearch\Exceptions\ApiException;
 use Statamic\Search\Result;
 
 class Index extends IndexWithBackportedPendingPullRequests
@@ -17,6 +19,37 @@ class Index extends IndexWithBackportedPendingPullRequests
         $this->validateConfiguration($config);
     }
 
+    private function ensureKeyIsNotMaster(): void
+    {
+        $key = config('statamic.search.drivers.meilisearch.credentials.secret');
+        if (!$key) {
+            return;
+        }
+
+        $cacheKey = 'croox_meilisearch_master_key_checked_' . $key;
+        $hasChecked = Cache::get($cacheKey);
+        if ($hasChecked) {
+            return;
+        }
+
+        $isAdminKey = true;
+        try {
+            $this->client->getKeys();
+        } catch (ApiException $e) {
+            $isAdminKey = $e->getCode() !== 403;
+        }
+
+        if ($isAdminKey) {
+            throw new ConfigurationException('
+                The MeiliSearch API key configured in .env is an admin key.
+                Please generate a new key using the artisan command "php artisan croox:meilisearch:generate-api-key"
+                and update your .env file.
+            ');
+        }
+
+        Cache::forever($cacheKey, true);
+    }
+
     /**
      * @param string $query
      * @param array<string, mixed> $filters
@@ -25,6 +58,8 @@ class Index extends IndexWithBackportedPendingPullRequests
      */
     public function searchUsingApi($query, $filters = [], $options = [])
     {
+        $this->ensureKeyIsNotMaster();
+
         $filters = $this->preProcessQueryOptions($filters);
         $results = parent::searchUsingApi($query, $filters, $options);
         return $results->map(fn(array $result) => $this->postProcessQueryResult($result, $filters));
@@ -78,6 +113,16 @@ class Index extends IndexWithBackportedPendingPullRequests
         return $length;
     }
 
+    public static function prefixedIndexName(array $additionalNameParts): string
+    {
+        $appName = config('app.name');
+        $environment = config('app.env');
+
+        $parts = array_merge([ $appName, $environment ], $additionalNameParts);
+        $parts = array_map(fn(string $part) => preg_replace('/[^a-z0-9]/', '-', strtolower($part)), $parts);
+        return implode('__', $parts);
+    }
+
     /**
      * By default, the name from the configuration is directly used as the index name.
      * In order to have different index names for different projects and environments, the app
@@ -90,12 +135,7 @@ class Index extends IndexWithBackportedPendingPullRequests
             return $config['index_name'];
         }
 
-        $appName = config('app.name');
-        $environment = config('app.env');
-
-        $parts = [ $appName, $environment, $name ];
-        $parts = array_map(fn(string $part) => preg_replace('/[^a-z0-9]/', '-', strtolower($part)), $parts);
-        return implode('__', $parts);
+        return self::prefixedIndexName([ $name ]);
     }
 
     private function validateConfiguration(array $config): void

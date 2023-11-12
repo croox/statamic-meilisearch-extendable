@@ -22,10 +22,13 @@ a couple of croox-specific features.
 2. Follow the setup instructions of the [meilisearch addon](https://github.comelvenstar/statamic-meilisearch)
 3. Use the additional configuration options described below
 
-### Usage of meilisearch.croox.com
+## Usage
 
-If you want to use the meilisearch instance hosted at meilisearch.croox.com, check 1Password
-for the required environment variables.
+There are 2 relevant information, that are provided via environment variables:
+
+* `MEILISEARCH_HOST`: The host of the meilisearch instance. This will probably be `meilisearch.croox.com`
+* `MEILISEARCH_KEY`: The API key to access the meilisearch instance. You can either get it from 1Password or use the
+  `croox:meilisearch:generate-api-key` artisan command to generate a new one.
 
 ## Features
 
