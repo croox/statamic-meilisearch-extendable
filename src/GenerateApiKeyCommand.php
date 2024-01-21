@@ -74,7 +74,7 @@ class GenerateApiKeyCommand extends Command
         if ($existingKey === null) {
             return [ null, null, false ];
         }
-        if ($this->option('force-delete')) {
+        if ($this->option('force-delete') === true) {
             $this->output->info('Force deleting existing key');
             return [ null, $existingKey, false ];
         }

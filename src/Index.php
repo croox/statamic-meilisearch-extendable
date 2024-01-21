@@ -5,14 +5,17 @@ namespace Croox\StatamicMeilisearch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Meilisearch\Client;
-use Meilisearch\Endpoints\Keys;
 use Meilisearch\Exceptions\ApiException;
 use Statamic\Search\Result;
+use StatamicRadPack\Meilisearch\Meilisearch\Index as BaseIndex;
 
-class Index extends IndexWithBackportedPendingPullRequests
+class Index extends BaseIndex
 {
     private const DEFAULT_SNIPPET_LENGTH = 100;
 
+    /**
+     * @psalm-suppress PossiblyUnusedMethod
+     */
     public function __construct(Client $client, string $name, array $config)
     {
         parent::__construct($client, $this->prefixIndexNameWithEnvironmentSpecifics($name, $config), $config);
@@ -22,7 +25,7 @@ class Index extends IndexWithBackportedPendingPullRequests
     private function ensureKeyIsNotMaster(): void
     {
         $key = config('statamic.search.drivers.meilisearch.credentials.secret');
-        if (!$key) {
+        if ($key === null || $key === '') {
             return;
         }
 
@@ -52,17 +55,15 @@ class Index extends IndexWithBackportedPendingPullRequests
 
     /**
      * @param string $query
-     * @param array<string, mixed> $filters
-     * @param array<string, mixed> $options
      * @return Collection
      */
-    public function searchUsingApi($query, $filters = [], $options = [])
+    public function searchUsingApi($query, array $options = ['hitsPerPage' => 1000000, 'showRankingScore' => true]): Collection
     {
         $this->ensureKeyIsNotMaster();
 
-        $filters = $this->preProcessQueryOptions($filters);
-        $results = parent::searchUsingApi($query, $filters, $options);
-        return $results->map(fn(array $result) => $this->postProcessQueryResult($result, $filters));
+        $options = $this->preProcessQueryOptions($options);
+        $results = parent::searchUsingApi($query, $options);
+        return $results->map(fn(array $result) => $this->postProcessQueryResult($result, $options));
     }
 
     private function preProcessQueryOptions(array $queryOptions): array

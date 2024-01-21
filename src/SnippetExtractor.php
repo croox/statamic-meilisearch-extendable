@@ -35,7 +35,7 @@ class SnippetExtractor
             $ranges = [];
             while ($start = strpos($value, $this->startTag, $offset)) {
                 $end = strpos($value, $this->endTag, $start);
-                if (!$end) {
+                if ($end === false) {
                     break;
                 }
                 $ranges[] = [

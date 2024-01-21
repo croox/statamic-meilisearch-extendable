@@ -6,7 +6,7 @@
         }
     },
     "require": {
-        "elvenstar/statamic-meilisearch": "^2.0"
+        "statamic-rad-pack/meilisearch": "^3.2"
     },
     "extra": {
         "statamic": {

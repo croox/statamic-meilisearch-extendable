@@ -2,10 +2,7 @@
 
 namespace Croox\StatamicMeilisearch;
 
-use Elvenstar\StatamicMeiliSearch\StatamicMeiliSearchServiceProvider;
-use Illuminate\Contracts\Foundation\Application;
-use Meilisearch\Client;
-use Statamic\Facades\Search;
+use StatamicRadPack\Meilisearch\ServiceProvider as StatamicMeiliSearchServiceProvider;
 use Statamic\Providers\AddonServiceProvider;
 
 /**
@@ -19,26 +16,9 @@ class ServiceProvider extends AddonServiceProvider
         // Ensure the MeiliSearch addon is loaded before this addon
         $this->app->register(StatamicMeiliSearchServiceProvider::class);
 
-        $this->registerIndex();
+        $this->app->bind(\StatamicRadPack\Meilisearch\Meilisearch\Index::class, Index::class);
         $this->commands([
             GenerateApiKeyCommand::class,
         ]);
-    }
-
-    private function registerIndex(): void
-    {
-        // TODO: This can be simplified once https://github.com/elvenstar/statamic-meilisearch/pull/20 is merged
-        //       until that time, the much larger block below is required.
-        // $this->app->bind(\Elvenstar\StatamicMeiliSearch\MeiliSearch\Index::class, Index::class);
-
-        Search::extend('meilisearch', function (Application $app, array $config, string $name) {
-            $credentials = $config['credentials'];
-            $url = $credentials['url'];
-            $masterKey = $credentials['secret'];
-
-            $client = new Client($url, $masterKey);
-
-            return new Index($client, $name, $config);
-        });
     }
 }
