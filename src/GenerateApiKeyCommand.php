@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Croox\StatamicMeilisearch;
@@ -82,16 +83,25 @@ class GenerateApiKeyCommand extends Command
 
         if (!$this->hasDifferingIndexes($keyProperties, $existingKey)) {
             $this->output->info([
-                sprintf('API Key for %s project already exists and has the correct indexes: %s', $keyProperties['name'], (string) $existingKey->getKey()),
+                sprintf(
+                    'API Key for %s project already exists and has the correct indexes: %s',
+                    $keyProperties['name'],
+                    (string) $existingKey->getKey(),
+                ),
             ]);
             return [ $existingKey, null, false ];
         }
 
         $this->output->error([
-            sprintf('An API Key for %s already exists: %s. However, it does not have access to the correct indexes.',  $keyProperties['name'], (string) $existingKey->getKey()),
+            sprintf(
+                'An API Key for %s already exists: %s. However, it does not have access to the correct indexes.',
+                $keyProperties['name'],
+                (string) $existingKey->getKey(),
+            ),
             sprintf('The key should have access to the following indexes: %s', json_encode($keyProperties['indexes'])),
             sprintf('But has access to the following indexes: %s', json_encode($existingKey->getIndexes())),
-            'You can remove this key and recreate it by confirming now. Keep in mind though, that all clients using this key will stop working until they are supplied with the new API Key',
+            'You can remove this key and recreate it by confirming now. Keep in mind though, ' .
+            'that all clients using this key will stop working until they are supplied with the new API Key',
         ]);
 
         if ($this->confirm('Delete existing index?')) {
