@@ -6,6 +6,7 @@
         }
     },
     "require": {
+        "statamic/cms": "^4.0 || ^5.0",
         "statamic-rad-pack/meilisearch": "^3.2"
     },
     "extra": {
