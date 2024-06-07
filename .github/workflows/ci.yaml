@@ -1,0 +1,32 @@
+
+name: CI
+
+on: [ push ]
+
+jobs:
+  php:
+    name: Run PHP checks (phpcs, phpstan)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - php: '8.2'
+            dependency_version: 'lowest'
+          - php: '8.3'
+            dependency_version: 'highest'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+      - name: Composer Install
+        run: composer update
+        if: matrix.dependency_version == 'highest'
+      - name: Composer install (lowest)
+        run: composer update --prefer-lowest --prefer-stable
+        if: matrix.dependency_version == 'lowest'
+      - name: Run checks
+        run: composer check

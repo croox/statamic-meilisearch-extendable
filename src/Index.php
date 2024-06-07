@@ -57,8 +57,10 @@ class Index extends BaseIndex
      * @param string $query
      * @return Collection
      */
-    public function searchUsingApi($query, array $options = ['hitsPerPage' => 1000000, 'showRankingScore' => true]): Collection
-    {
+    public function searchUsingApi(
+        $query,
+        array $options = ['hitsPerPage' => 1000000, 'showRankingScore' => true]
+    ): Collection {
         $this->ensureKeyIsNotMaster();
 
         $options = $this->preProcessQueryOptions($options);
@@ -147,21 +149,19 @@ class Index extends BaseIndex
 
         $appName = config('app.name');
         if ($appName === 'Statamic' || $appName === 'Statamic Peak') {
-            throw new ConfigurationException(
-                sprintf(
-                    'The croox meilisearch integration requires a unique app name to be set, but detected "%s". Please update your .env file in order to use a custom app name.',
-                    $appName
-                )
-            );
+            throw new ConfigurationException(sprintf(
+                'The croox meilisearch integration requires a unique app name to be set, but detected "%s". ' .
+                'Please update your .env file in order to use a custom app name.',
+                $appName
+            ));
         }
 
         if (isset($config['index_name']) && !preg_match('/^[a-z\-_]$/', $config['index_name'])) {
-            throw new ConfigurationException(
-                sprintf(
-                    'The croox meilisearch integration requires the index_name to only contain lowercase letters, dashes and underscores, but detected "%s". Please update your config file.',
-                    $config['index_name']
-                )
-            );
+            throw new ConfigurationException(sprintf(
+                'The croox meilisearch integration requires the index_name to only contain lowercase letters, ' .
+                'dashes and underscores, but detected "%s". Please update your config file.',
+                $config['index_name']
+            ));
         }
 
         Cache::forever('croox_meilisearch_config_validated', true);
