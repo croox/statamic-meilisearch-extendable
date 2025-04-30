@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Croox\StatamicMeilisearch;
 
+use Croox\StatamicMeilisearch\Modification\IndexNamePrefix;
 use Illuminate\Console\Command;
 use Meilisearch\Client;
 use Meilisearch\Endpoints\Keys;
@@ -20,7 +21,7 @@ class GenerateApiKeyCommand extends Command
         $appName = config('app.name');
         $environment = config('app.env');
 
-        $indexNames = [ Index::prefixedIndexName([ ]) . '*' ];
+        $indexNames = [ IndexNamePrefix::prefixedIndexName([ ]) . '*' ];
         foreach ((array) config('statamic.search.indexes') as $config) {
             if ($config['driver'] !== 'meilisearch') {
                 continue;
@@ -98,8 +99,14 @@ class GenerateApiKeyCommand extends Command
                 $keyProperties['name'],
                 (string) $existingKey->getKey(),
             ),
-            sprintf('The key should have access to the following indexes: %s', json_encode($keyProperties['indexes'])),
-            sprintf('But has access to the following indexes: %s', json_encode($existingKey->getIndexes())),
+            sprintf(
+                'The key should have access to the following indexes: %s',
+                json_encode($keyProperties['indexes'], JSON_THROW_ON_ERROR),
+            ),
+            sprintf(
+                'But has access to the following indexes: %s',
+                json_encode($existingKey->getIndexes(), JSON_THROW_ON_ERROR),
+            ),
             'You can remove this key and recreate it by confirming now. Keep in mind though, ' .
             'that all clients using this key will stop working until they are supplied with the new API Key',
         ]);

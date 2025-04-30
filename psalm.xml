@@ -17,5 +17,7 @@
 
     <issueHandlers>
         <PropertyNotSetInConstructor errorLevel="suppress" />
+        <MissingOverrideAttribute errorLevel="suppress" />
+        <ClassMustBeFinal errorLevel="suppress" />
     </issueHandlers>
 </psalm>
