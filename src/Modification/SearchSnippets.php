@@ -40,7 +40,9 @@ class SearchSnippets extends MeilisearchOptionModifier
         return $results->transformHits(function (array $hits) use ($extractor) {
             $transformed = [ ];
             foreach ($hits as $hit) {
-                $hit['search_snippets'] = $extractor->extractSearchSnippetsFromMeilisearchResult($hit['_formatted'] ?? [ ]);
+                $hit['search_snippets'] = $extractor->extractSearchSnippetsFromMeilisearchResult(
+                    $hit['_formatted'] ?? [ ],
+                );
                 $transformed[] = $hit;
             }
 

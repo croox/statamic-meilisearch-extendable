@@ -91,6 +91,12 @@ class Index extends BaseIndex
             }
         }
 
+        foreach ($rawResult as $key => $value) {
+            if (!$result->getSearchable()->getSearchValue($key) && !isset($extra[$key])) {
+                $extra[$key] = $value;
+            }
+        }
+
         return $extra;
     }
 }

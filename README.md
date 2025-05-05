@@ -96,6 +96,65 @@ NOTE 2: In contrast to the `local` driver, the `search_snippets` array will cont
 {{ /search:results }}
 ```
 
+### `Facets`
+Enables the use of facets for faceted search, allowing you to filter the results based on specific attributes.
+In order to use facets, you need to configure the `facets` key in the config file and update the search index.
+
+**Note: The search index must be updated every time you change the facets.**
+```php
+'indexes' => [
+    'default' => [
+        'facets' => [
+            'tags',
+            'number_trained_pets',
+            'date',
+        ],
+    ],
+]
+```
+
+The facet values can be acessed in the template using the `meilisearch_facets` tag and are expected to be provided as
+`facet[NAME]` in the request. The following subkeys are available:
+
+* `facet[NAME][values][]`: To filter for one or more specific values
+* `facet[NAME][min]`: To filter for values greater than or equal to the given value
+* `facet[NAME][max]`: To filter for values less than or equal to the given value
+* `facet[NAME][date_min]`: To filter for dates greater than or equal to the given date
+* `facet[NAME][date_max]`: To filter for dates less than or equal to the given date
+
+```html
+{{ search:results paginate="20" as="results" }}
+  {{ meilisearch_facets as="facets" }}
+    
+    <!-- "Selection" facets, where the user can select one or more values to filter by -->
+    {{ if facets.tags }}
+        <select>
+            <option value="" {{ if facets.tags.active.values | is_empty }}selected{{ /if }}>all</option>
+            {{ foreach :array="facets.tags.distribution" as="value|valueCount" }}
+                <option value="{{ value }}" {{ if facets.tags.active.values | in_array(value) }}selected="selected"{{ /if }} >
+                  {{ value }} ({{ valueCount }})
+                </option>
+            {{ /foreach }}
+        </select>
+    {{ /if }}
+
+    <!-- Numeric facets, that are filtered as a range -->
+    {{ if facets.number_trained_pets }}
+        <input type="number" name="facet[number_trained_pets][min]" value="{{ facets.number_trained_pets.active.min }}" />
+        <input type="number" name="facet[number_trained_pets][max]" value="{{ facets.number_trained_pets.active.max }}" />
+    {{ /if }}
+
+    <!-- Date facets, that are filtered as a range -->
+    {{ if facets.date }}
+        <input type="date" name="facet[date][date_min]" value="{{ facets.date.active.date_min | format('Y-m-d') }}" />
+        <input type="date" name="facet[date][date_max]" value="{{ facets.date.active.date_max | format('Y-m-d') }}" />
+    {{ /if }}
+  {{ /meilisearch_facets }}
+
+  <!-- ... -->
+{{ /search:results }}
+```
+
 ### Implementing your own `MeilisearchOptionModifier`
 In order to extend the behaviour of the meilisearch addon, you can create your own class extending `MeilisearchOptionModifier`
 and register it in the config file under `meilisearch_modifiers`.

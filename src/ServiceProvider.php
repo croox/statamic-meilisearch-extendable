@@ -2,6 +2,8 @@
 
 namespace Croox\StatamicMeilisearch;
 
+use Croox\StatamicMeilisearch\Modification\Facets\FacetsOptionModifier;
+use Croox\StatamicMeilisearch\Modification\Facets\FacetsTag;
 use StatamicRadPack\Meilisearch\ServiceProvider as StatamicMeiliSearchServiceProvider;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -11,6 +13,12 @@ use Statamic\Providers\AddonServiceProvider;
  */
 class ServiceProvider extends AddonServiceProvider
 {
+    public function register()
+    {
+        $this->app->singleton(FacetsOptionModifier::class);
+    }
+
+
     public function bootAddon(): void
     {
         // Ensure the MeiliSearch addon is loaded before this addon
@@ -20,5 +28,8 @@ class ServiceProvider extends AddonServiceProvider
         $this->commands([
             GenerateApiKeyCommand::class,
         ]);
+
+        // Saves result for later use
+        FacetsTag::register();
     }
 }

@@ -4,6 +4,7 @@ namespace Croox\StatamicMeilisearch;
 
 use Croox\StatamicMeilisearch\Modification\AdditionalQueryOptions;
 use Croox\StatamicMeilisearch\Modification\EnsureKeyIsNotMaster;
+use Croox\StatamicMeilisearch\Modification\Facets\FacetsOptionModifier;
 use Croox\StatamicMeilisearch\Modification\IndexNamePrefix;
 use Croox\StatamicMeilisearch\Modification\MeilisearchOptionModifier;
 use Croox\StatamicMeilisearch\Modification\RawResults;
@@ -18,5 +19,6 @@ class Meilisearch
         AdditionalQueryOptions::class,
         RawResults::class,
         SearchSnippets::class,
+        FacetsOptionModifier::class,
     ];
 }

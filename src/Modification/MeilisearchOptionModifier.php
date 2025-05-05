@@ -41,16 +41,6 @@ abstract class MeilisearchOptionModifier
         return $options;
     }
 
-    /**
-     * Pre-process the index options before creating the index in meilisearch.
-     * @psalm-suppress PossiblyUnusedParam
-     */
-    public function preProcessIndexOptions(Index $index, array $options): array
-    {
-        return $options;
-    }
-
-
     public function postProcessResults(Index $index, SearchResult $results, array $queryOptions): SearchResult
     {
         return $results;
