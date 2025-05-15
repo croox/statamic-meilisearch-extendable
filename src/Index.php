@@ -25,6 +25,11 @@ class Index extends BaseIndex
         parent::__construct($client, $name, $config);
     }
 
+    public function search(string $query): QueryBuilder
+    {
+        return (new QueryBuilder($this))->query($query);
+    }
+
     /** @return list{string, array} */
     private function initializeModifiers(string $name, array $config): array
     {
@@ -57,26 +62,28 @@ class Index extends BaseIndex
         return [ $name, $config ];
     }
 
-    /**
-     * @param string $query
-     * @return Collection
-     */
-    public function searchUsingApi(
-        $query,
-        array $options = ['hitsPerPage' => 1000000, 'showRankingScore' => true]
-    ): Collection {
+    public function performSearch(
+        QueryBuilder $query,
+        array $options = [ 'showRankingScore' => true ],
+    ): SearchResult {
         foreach ($this->modifiers as $modifier) {
             $options = $modifier->preProcessQueryOptions($this, $query, $options);
         }
 
-        /** @var SearchResult $result */
-        $result = $this->client->index($this->name)->search($query, $options);
+
+        foreach (array_keys($options) as $key) {
+            if (str_starts_with($key, '_')) {
+                unset($options[$key]);
+            }
+        }
+
+        $result = $this->client->index($this->name)->search($query->getQuery(), $options);
 
         foreach ($this->modifiers as $modifier) {
             $result = $modifier->postProcessResults($this, $result, $options);
         }
 
-        return collect($result->getHits());
+        return $result;
     }
 
     /** @return array<string, mixed> */

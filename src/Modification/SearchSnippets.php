@@ -3,6 +3,7 @@
 namespace Croox\StatamicMeilisearch\Modification;
 
 use Croox\StatamicMeilisearch\Index;
+use Croox\StatamicMeilisearch\QueryBuilder;
 use Croox\StatamicMeilisearch\SnippetExtractor;
 use Illuminate\Support\Collection;
 use Meilisearch\Search\SearchResult;
@@ -11,7 +12,7 @@ class SearchSnippets extends MeilisearchOptionModifier
 {
     protected const DEFAULT_SNIPPET_LENGTH = 100;
 
-    public function preProcessQueryOptions(Index $index, string $searchQuery, array $options): array
+    public function preProcessQueryOptions(Index $index, QueryBuilder $query, array $options): array
     {
         $options = array_replace($index->config()['query_options'] ?? [], $options);
 

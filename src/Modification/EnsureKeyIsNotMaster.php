@@ -4,12 +4,13 @@ namespace Croox\StatamicMeilisearch\Modification;
 
 use Croox\StatamicMeilisearch\ConfigurationException;
 use Croox\StatamicMeilisearch\Index;
+use Croox\StatamicMeilisearch\QueryBuilder;
 use Illuminate\Support\Facades\Cache;
 use Meilisearch\Exceptions\ApiException;
 
 class EnsureKeyIsNotMaster extends MeilisearchOptionModifier
 {
-    public function preProcessQueryOptions(Index $index, string $searchQuery, array $options): array
+    public function preProcessQueryOptions(Index $index, QueryBuilder $query, array $options): array
     {
         $this->ensureKeyIsNotMaster($index);
 

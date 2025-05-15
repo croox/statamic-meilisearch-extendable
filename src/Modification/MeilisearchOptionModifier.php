@@ -4,6 +4,7 @@ namespace Croox\StatamicMeilisearch\Modification;
 
 use Croox\StatamicMeilisearch\ConfigurationException;
 use Croox\StatamicMeilisearch\Index;
+use Croox\StatamicMeilisearch\QueryBuilder;
 use Illuminate\Support\Collection;
 use Meilisearch\Search\SearchResult;
 
@@ -36,7 +37,7 @@ abstract class MeilisearchOptionModifier
      * Pre-process the query options before sending them to Meilisearch.
      * This method is called on every search request.
      */
-    public function preProcessQueryOptions(Index $index, string $searchQuery, array $options): array
+    public function preProcessQueryOptions(Index $index, QueryBuilder $query, array $options): array
     {
         return $options;
     }

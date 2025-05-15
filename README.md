@@ -66,6 +66,61 @@ be helpful to get formatted results combined with `query_options`.
 {{ /search:results }}
 ```
 
+### `Filtering`
+
+By default, statamic fetches *all* results from the search index and implements filtering logic in PHP. This is not
+ideal, as properly optimized search backends such as meilisearch are preferrable for this task. This option modifier
+allows moving of filtering logic to meilisearch, which is much more efficient.
+
+```php
+'indexes' => [
+    'default' => [
+        'filtering' => [
+            'type' => 'split', // or 'statamic' (default) or 'meilisearch'
+        ]
+    ],
+    'settings' => [
+        'filterableAttributes' => [
+            'site',
+        ]
+    ]
+]
+```
+
+Attributes found in `filterableAttributes` can be processed by meilisearch, so be sure to add them accordingly.
+
+NOTE: Make sure to update the search index by using `please search:update` after changing the `filterableAttributes` config
+      option in order to configure the meilisearch index correctly.
+
+The following filtering types are available:
+
+* `statamic` (default): All filtering logic is done in PHP. This is the default behaviour of statamic.
+* `split`: Filtering that can be done in meilisearch (when the property is found in `filterableAttributes`) is done
+           in meilisearch. The rest is done in PHP.
+* `meilisearch`: All filtering logic is done in meilisearch. If an unhandled where-case is found, then an exception is
+                 thrown.
+
+### `Pagination`
+
+By default, statamic fetches *all* results from the search index and implements pagination logic in PHP. This is not ideal
+in most cases, as it leads to unnecessary data transfer and processing. This option modifier allows moving of pagination logic to
+meilisearch, which is much more efficient.
+
+```php
+'indexes' => [
+    'default' => [
+        'type' => 'meilisearch', // or 'statamic' (default)
+    ]
+]
+```
+
+The following pagination types are available:
+
+* `meilisearch`: Pagination is done in meilisearch. Requires `filtering.type` to be set to `meilisearch`
+* `statamic` (default): Pagination is done in PHP. This is the default behaviour of statamic. Because this fetches all data
+             from the search index and the meilisearch query must have a limit, `pagination.statamic_hits` can be used in
+             order to control the limit that is sent to meilisearch. It is set to `1000` by default.
+
 ### `SearchSnippets`
 If configured, the search results will contain a `search_snippets` array that mimics the
 `search_snippets` of the `local` driver: It contains highlighted matches of the search term
@@ -155,6 +210,16 @@ The facet values can be acessed in the template using the `meilisearch_facets` t
 {{ /search:results }}
 ```
 
+### `QueryTime`
+
+Allows using the `meilisearch_query_time` tag in order to print information about the query runtime.
+
+```html
+{{ search:results paginate="20" as="results" }}
+    <p>Query took {{ meilisearch_query_time }}ms</p>
+{{ /search:results }}
+```
+
 ### Implementing your own `MeilisearchOptionModifier`
 In order to extend the behaviour of the meilisearch addon, you can create your own class extending `MeilisearchOptionModifier`
 and register it in the config file under `meilisearch_modifiers`.
@@ -171,3 +236,7 @@ NOTE: You will probably want to use `...Meilisearch::DEFAULT_MODIFIERS` in order
     ],
 ],
  ```
+
+NOTE: Some query related methods will be called twice for a single query - once in order to fetch the total number of results
+      and then a second time to fetch the actual results. If you want to have different behaviour for the two queries, you can
+      can use `$options['_is_count']`.

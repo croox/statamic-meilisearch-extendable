@@ -4,6 +4,7 @@ namespace Croox\StatamicMeilisearch\Modification\Facets;
 
 use Croox\StatamicMeilisearch\Index;
 use Croox\StatamicMeilisearch\Modification\MeilisearchOptionModifier;
+use Croox\StatamicMeilisearch\QueryBuilder;
 use Meilisearch\Search\SearchResult;
 
 class FacetsOptionModifier extends MeilisearchOptionModifier
@@ -23,7 +24,7 @@ class FacetsOptionModifier extends MeilisearchOptionModifier
         return $config;
     }
 
-    public function preProcessQueryOptions(Index $index, string $searchQuery, array $options): array
+    public function preProcessQueryOptions(Index $index, QueryBuilder $query, array $options): array
     {
         $facets = $index->config()['facets'] ?? [ ];
         $options['facets'] = array_unique(array_merge($options['facets'] ?? [ ], $facets));
