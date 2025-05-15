@@ -80,6 +80,7 @@ class Index extends BaseIndex
                 unset($options[$key]);
             }
         }
+        unset($options['meilisearch']);
 
         $result = $this->client->index($this->name)->search($query->getQuery(), $options);
 

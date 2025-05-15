@@ -7,6 +7,19 @@ use Croox\StatamicMeilisearch\QueryBuilder;
 
 class Filtering extends MeilisearchOptionModifier
 {
+    public function preProcessConfiguration(array $config): array
+    {
+        $config['settings'] = $config['settings'] ?? [ ];
+        $config['settings']['filterableAttributes'] = array_unique(
+            array_merge(
+                $config['settings']['filterableAttributes'] ?? [ ],
+                $config['meilisearch']['filtering']['attributes'] ?? [ ],
+            )
+        );
+
+        return $config;
+    }
+
     /**
      * Pre-process the query options before sending them to Meilisearch.
      * This method is called on every search request.
@@ -15,7 +28,7 @@ class Filtering extends MeilisearchOptionModifier
     {
         $config = $index->config();
 
-        $type = (string) ($config['filtering']['type'] ?? 'statamic');
+        $type = (string) ($config['meilisearch']['filter']['type'] ?? 'statamic');
         $isCount = (bool) ($options['_is_count'] ?? false);
 
         if ($type !== 'meilisearch' && $type !== 'split') {
@@ -46,8 +59,8 @@ class Filtering extends MeilisearchOptionModifier
 
         if ($type === 'meilisearch' && count($unhandledWheres) > 0) {
             throw new \InvalidArgumentException(sprintf('
-                filtering.type = "meilisearch" requires all filters to be filtered by meilisearch.
-                Please ensure that all unhandled wheres are in `filterableAttributes`.
+                meilisearch.filtering.type = "meilisearch" requires all filters to be filtered by meilisearch.
+                Please ensure that all unhandled wheres are in `meilisearch.filtering.attributes`.
                 Unhandled wheres: %s
             ', json_encode($unhandledWheres, JSON_THROW_ON_ERROR)));
         }

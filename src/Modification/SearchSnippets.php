@@ -69,7 +69,7 @@ class SearchSnippets extends MeilisearchOptionModifier
             return null;
         }
 
-        $length = $config['snippet_length'] ?? self::DEFAULT_SNIPPET_LENGTH;
+        $length = $config['snippet_length'] ?? $config['meilisearch']['snippet_length'] ?? self::DEFAULT_SNIPPET_LENGTH;
         if ($length < 1) {
             return null;
         }

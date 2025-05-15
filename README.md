@@ -47,9 +47,11 @@ sent to meilisearch on every search request.
 'indexes' => [
     'default' => [
         // See https://www.meilisearch.com/docs/reference/api/search
-        'query_options' => [
-            'sort' => 'title:desc'
-        ] 
+        'meilisearch' => [
+            'query_options' => [
+                'sort' => 'title:desc'
+            ] 
+        ]
     ]
 ]
 ```
@@ -75,24 +77,24 @@ allows moving of filtering logic to meilisearch, which is much more efficient.
 ```php
 'indexes' => [
     'default' => [
-        'filtering' => [
-            'type' => 'split', // or 'statamic' (default) or 'meilisearch'
-        ]
+        'meilisearch' => [
+            'filtering' => [
+                'filtering' => [
+                    'type' => 'split', // Or 'statamic' (default) or `meilisearch`
+                    'attributes' => [ 'site' ],
+                ]
+            ]
+        ],
     ],
-    'settings' => [
-        'filterableAttributes' => [
-            'site',
-        ]
-    ]
 ]
 ```
 
-Attributes found in `filterableAttributes` can be processed by meilisearch, so be sure to add them accordingly.
+Attributes found in `attributes` can be processed by meilisearch, so be sure to add them accordingly.
 
-NOTE: Make sure to update the search index by using `please search:update` after changing the `filterableAttributes` config
+NOTE: Make sure to update the search index by using `please search:update` after changing the `attributes` config
       option in order to configure the meilisearch index correctly.
 
-The following filtering types are available:
+The following filter types are available:
 
 * `statamic` (default): All filtering logic is done in PHP. This is the default behaviour of statamic.
 * `split`: Filtering that can be done in meilisearch (when the property is found in `filterableAttributes`) is done
@@ -109,7 +111,11 @@ meilisearch, which is much more efficient.
 ```php
 'indexes' => [
     'default' => [
-        'type' => 'meilisearch', // or 'statamic' (default)
+        'meilisearch' => [
+            'pagination' => [
+                'type' => 'meilisearch', // or 'statamic' (default)
+            ]
+        ],
     ]
 ]
 ```
@@ -159,11 +165,13 @@ In order to use facets, you need to configure the `facets` key in the config fil
 ```php
 'indexes' => [
     'default' => [
-        'facets' => [
-            'tags',
-            'number_trained_pets',
-            'date',
-        ],
+        'meilisearch' => [
+            'facets' => [
+                'tags',
+                'number_trained_pets',
+                'date',
+            ],
+        ]
     ],
 ]
 ```

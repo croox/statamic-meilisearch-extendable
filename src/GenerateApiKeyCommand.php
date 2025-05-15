@@ -41,7 +41,8 @@ class GenerateApiKeyCommand extends Command
                 'search',
                 'documents.*',
                 'tasks.*',
-                'indexes.*'
+                'indexes.*',
+                'settings.*',
             ],
             'indexes' => $indexNames,
             'expiresAt' => null,
@@ -54,6 +55,11 @@ class GenerateApiKeyCommand extends Command
         $newIndexes = $keyProperties['indexes'];
 
         return $existingIndexes !== $newIndexes;
+    }
+
+    private function hasDifferingActions(array $keyProperties, Keys $existing): bool
+    {
+        return $existing->getActions() !== $keyProperties['actions'];
     }
 
     /**
@@ -81,43 +87,67 @@ class GenerateApiKeyCommand extends Command
             return [ null, $existingKey, false ];
         }
 
-
-        if (!$this->hasDifferingIndexes($keyProperties, $existingKey)) {
-            $this->output->info([
+        $shouldDelete = false;
+        if ($this->hasDifferingIndexes($keyProperties, $existingKey)) {
+            $this->output->error([
                 sprintf(
-                    'API Key for %s project already exists and has the correct indexes: %s',
+                    'An API Key for %s already exists: %s. However, it does not have access to the correct indexes.',
                     $keyProperties['name'],
                     (string) $existingKey->getKey(),
                 ),
+                sprintf(
+                    'The key should have access to the following indexes: %s',
+                    json_encode($keyProperties['indexes'], JSON_THROW_ON_ERROR),
+                ),
+                sprintf(
+                    'But has access to the following indexes: %s',
+                    json_encode($existingKey->getIndexes(), JSON_THROW_ON_ERROR),
+                ),
+                'You can remove this key and recreate it by confirming now. Keep in mind though, ' .
+                'that all clients using this key will stop working until they are supplied with the new API Key',
             ]);
-            return [ $existingKey, null, false ];
+
+            $shouldDelete = true;
+        } elseif ($this->hasDifferingActions($keyProperties, $existingKey)) {
+            $this->output->error([
+                sprintf(
+                    'An API Key for %s already exists: %s. However, it does not have access to the correct actions.',
+                    $keyProperties['name'],
+                    (string) $existingKey->getKey(),
+                ),
+                sprintf(
+                    'The key should have access to the following actions: %s',
+                    json_encode($keyProperties['actions'], JSON_THROW_ON_ERROR),
+                ),
+                sprintf(
+                    'But has access to the following actions: %s',
+                    json_encode($existingKey->getActions(), JSON_THROW_ON_ERROR),
+                ),
+                'You can remove this key and recreate it by confirming now. Keep in mind though, ' .
+                'that all clients using this key will stop working until they are supplied with the new API Key',
+            ]);
+
+            $shouldDelete = true;
         }
 
-        $this->output->error([
+        if ($shouldDelete) {
+            if ($this->confirm('Delete existing index?')) {
+                return [ null, $existingKey, false ];
+            }
+
+
+            $this->output->error('Aborting');
+            return [ null, null, true ];
+        }
+
+        $this->output->info([
             sprintf(
-                'An API Key for %s already exists: %s. However, it does not have access to the correct indexes.',
+                'API Key for %s project already exists and has the correct indexes & actions: %s',
                 $keyProperties['name'],
                 (string) $existingKey->getKey(),
             ),
-            sprintf(
-                'The key should have access to the following indexes: %s',
-                json_encode($keyProperties['indexes'], JSON_THROW_ON_ERROR),
-            ),
-            sprintf(
-                'But has access to the following indexes: %s',
-                json_encode($existingKey->getIndexes(), JSON_THROW_ON_ERROR),
-            ),
-            'You can remove this key and recreate it by confirming now. Keep in mind though, ' .
-            'that all clients using this key will stop working until they are supplied with the new API Key',
         ]);
-
-        if ($this->confirm('Delete existing index?')) {
-            return [ null, $existingKey, false ];
-        }
-
-
-        $this->output->error('Aborting');
-        return [ null, null, true ];
+        return [ $existingKey, null, false ];
     }
 
     /** @api */

@@ -9,10 +9,10 @@ class Pagination extends MeilisearchOptionModifier
 {
     public function preProcessConfiguration(array $config): array
     {
-        $paginationType = $config['pagination']['type'] ?? 'statamic';
-        $filteringType = $config['filtering']['type'] ?? 'statamic';
+        $paginationType = $config['meilisearch']['pagination']['type'] ?? 'statamic';
+        $filteringType = $config['meilisearch']['filtering']['type'] ?? 'statamic';
         if ($paginationType === 'meilisearch' && $filteringType !== 'meilisearch') {
-            throw new \InvalidArgumentException('Pagination type "meilisearch" requires filtering type "meilisearch".');
+            throw new \InvalidArgumentException('Pagination type "meilisearch" requires Filtering type "meilisearch".');
         }
 
         return $config;
@@ -25,8 +25,8 @@ class Pagination extends MeilisearchOptionModifier
     public function preProcessQueryOptions(Index $index, QueryBuilder $query, array $options): array
     {
         $config = $index->config();
-        $type = (string) ($config['pagination']['type'] ?? 'statamic');
-        $statamicHits = (int) ($config['pagination']['statamic_hits'] ?? 1000);
+        $type = (string) ($config['meilisearch']['pagination']['type'] ?? 'statamic');
+        $statamicHits = (int) ($config['meilisearch']['pagination']['statamic_hits'] ?? 1000);
 
         $isCount = (bool) ($options['_is_count'] ?? false);
 
