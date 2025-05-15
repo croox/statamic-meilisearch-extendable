@@ -25,7 +25,11 @@ class QueryBuilder extends Query
         return $result->getTotalHits();
     }
 
-    public function getSearchResults(string $query): Collection
+    /**
+     * @param string $query
+     * @return Collection
+     */
+    public function getSearchResults($query)
     {
         $results = $this->index->performSearch($this);
 

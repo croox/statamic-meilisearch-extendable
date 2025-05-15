@@ -25,7 +25,11 @@ class Index extends BaseIndex
         parent::__construct($client, $name, $config);
     }
 
-    public function search(string $query): QueryBuilder
+    /**
+     * @param string $query
+     * @return QueryBuilder
+     */
+    public function search($query)
     {
         return (new QueryBuilder($this))->query($query);
     }
