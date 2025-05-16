@@ -21,6 +21,11 @@ class FacetsOptionModifier extends MeilisearchOptionModifier
             )
         );
 
+        $config['settings']['faceting'] = $config['settings']['faceting'] ?? [];
+        $config['settings']['faceting']['sortFacetValuesBy'] = [
+            '*' => 'count'
+        ];
+
         return $config;
     }
 
