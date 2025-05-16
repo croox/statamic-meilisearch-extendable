@@ -26,11 +26,10 @@ class FacetsOptionModifier extends MeilisearchOptionModifier
 
     public function preProcessQueryOptions(Index $index, QueryBuilder $query, array $options): array
     {
-        $facets = $index->config()['meilisearch']['facets'] ?? [ ];
-        $options['meilisearch']['facets'] = array_unique(
+        $options['facets'] = array_unique(
             array_merge(
-                $options['meilisearch']['facets'] ?? [],
-                $facets,
+                $index->config()['meilisearch']['facets'] ?? [],
+                $options['facets'] ?? [],
             )
         );
 
@@ -40,7 +39,7 @@ class FacetsOptionModifier extends MeilisearchOptionModifier
         }
 
         /** @psalm-suppress ArgumentTypeCoercion */
-        $queryValues = $this->getFacetQueryValues($options['meilisearch']['facets']);
+        $queryValues = $this->getFacetQueryValues($options['facets']);
         foreach ($queryValues as $facet => $values) {
             if (!empty($values['values'])) {
                 $filter[] = sprintf('%s IN %s', $facet, json_encode($values['values'], JSON_THROW_ON_ERROR));
