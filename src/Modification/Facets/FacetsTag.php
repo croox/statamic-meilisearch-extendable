@@ -41,6 +41,7 @@ class FacetsTag extends Tags
                 continue;
             }
 
+            /** @psalm-suppress PossiblyInvalidArgument */
             $facets[$key] = new FacetDto(
                 $distribution[$key] ?? [ ],
                 $stats[$key] ?? [ ],
