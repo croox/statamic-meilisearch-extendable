@@ -28,14 +28,14 @@ class Filtering extends MeilisearchOptionModifier
     {
         $config = $index->config();
 
-        $type = (string) ($config['meilisearch']['filter']['type'] ?? 'statamic');
+        $type = (string) ($config['meilisearch']['filtering']['type'] ?? 'statamic');
         $isCount = (bool) ($options['_is_count'] ?? false);
 
         if ($type !== 'meilisearch' && $type !== 'split') {
             return $options;
         }
 
-        $filterableAttributes = $index->config()['settings']['filterableAttributes'] ?? [ ];
+        $filterableAttributes = $config['settings']['filterableAttributes'] ?? [ ];
 
         $filter = $options['filter'] ?? [ ];
         if (is_string($filter)) {
