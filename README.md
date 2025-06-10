@@ -277,6 +277,42 @@ Allows the user to change the sort order of the results.
 {{ /meilisearch_sort_order }}
 ```
 
+### `Synonyms`
+
+In order to improve search result ranking, the `SynonymsOptionModifier` allows specifying a list of
+synonyms that are passed to meilisearch.
+
+Synonyms can either be defined in the [default meilisearch format](https://www.meilisearch.com/docs/learn/relevancy/synonyms)
+for more precision or in a shorthand format that automatically adds the inverse 
+
+```php
+'indexes' => [
+    'default' => [
+        'meilisearch' => [
+            'synonyms' => [
+                // Searches for 'Dog' should also yield results containing 'Labrador'
+                'Dog' => [ 'Labrador' ],
+                
+                // Searches for 'Labrador' should not yield results containing 'Dog',
+                // therefor the inverse synonym is not added.
+                // 'Labrador' => [ 'Dog' ],
+                
+                // A shorthand is available by not using a key. This is equivalent to
+                // 'Bed' => [ 'Matrace', 'Futon' ],
+                // 'Matrace' => [ 'Bed', 'Futon' ],
+                // 'Futon' => [ 'Bed', 'Matrace' ], 
+                [
+                    'Bed',
+                    'Matrace',
+                    'Futon'
+                ]
+            ],
+        ]
+    ],
+]
+```
+
+
 ### Implementing your own `MeilisearchOptionModifier`
 In order to extend the behaviour of the meilisearch addon, you can create your own class extending `MeilisearchOptionModifier`
 and register it in the config file under `meilisearch_modifiers`.
