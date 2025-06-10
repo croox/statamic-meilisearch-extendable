@@ -6,6 +6,8 @@ use Croox\StatamicMeilisearch\Modification\Facets\FacetsOptionModifier;
 use Croox\StatamicMeilisearch\Modification\Facets\FacetsTag;
 use Croox\StatamicMeilisearch\Modification\QueryTime\QueryTimeOptionModifier;
 use Croox\StatamicMeilisearch\Modification\QueryTime\QueryTimeTag;
+use Croox\StatamicMeilisearch\Modification\SortOrder\SortOrderOptionModifier;
+use Croox\StatamicMeilisearch\Modification\SortOrder\SortOrderTag;
 use StatamicRadPack\Meilisearch\ServiceProvider as StatamicMeiliSearchServiceProvider;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -19,6 +21,7 @@ class ServiceProvider extends AddonServiceProvider
     {
         $this->app->singleton(FacetsOptionModifier::class);
         $this->app->singleton(QueryTimeOptionModifier::class);
+        $this->app->singleton(SortOrderOptionModifier::class);
     }
 
 
@@ -35,5 +38,6 @@ class ServiceProvider extends AddonServiceProvider
         // Saves result for later use
         FacetsTag::register();
         QueryTimeTag::register();
+        SortOrderTag::register();
     }
 }

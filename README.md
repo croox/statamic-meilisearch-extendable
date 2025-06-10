@@ -49,7 +49,7 @@ sent to meilisearch on every search request.
         // See https://www.meilisearch.com/docs/reference/api/search
         'meilisearch' => [
             'query_options' => [
-                'sort' => 'title:desc'
+                'distinct' => 'title'
             ] 
         ]
     ]
@@ -226,6 +226,55 @@ Allows using the `meilisearch_query_time` tag in order to print information abou
 {{ search:results paginate="20" as="results" }}
     <p>Query took {{ meilisearch_query_time }}ms</p>
 {{ /search:results }}
+```
+
+### `SortOrder`
+
+Allows the user to change the sort order of the results.
+**Note: The search index must be updated every time you change the config.**
+
+
+
+```php
+'indexes' => [
+    'default' => [
+        'meilisearch' => [
+            'sort_order' => [
+                // The attributes available for sorting must be listed under `available_fields`
+                'available_fields' => [ 'date', 'name' ],
+                
+                // The sort order that is applied by default. If not specified, then the results
+                // are returned in an order that meilisearch deems most fitting to the search term.
+                'default_sort' => [ 'date:desc' ],
+                
+                // Optional
+                'ranking_rules' => [ /* See https://www.meilisearch.com/docs/learn/filtering_and_sorting/sort_search_results#customize-ranking-rule-order-optional */ ]
+            ],
+        ]
+    ],
+]
+```
+
+```html
+{{ meilisearch_sort_order as="sort_order" }}
+    <select name="sort_order[]">
+        <option value="" {{ if sort_order | is_empty }} selected {{ /if }}>
+            Default
+        </option>
+        <option value="date:desc" {{ if sort_order | in_array('date:desc') }} selected {{ /if }}>
+            Newest first
+        </option>
+        <option value="date:asc" {{ if sort_order | in_array('date:asc') }} selected {{ /if }}>
+            Oldest first
+        </option>
+        <option value="name:asc" {{ if sort_order | in_array('name:asc') }} selected {{ /if }}>
+            By name ascending
+        </option>
+        <option value="name:desc" {{ if sort_order | in_array('name:desc') }} selected {{ /if }}>
+            By name descending
+        </option>
+    </select>
+{{ /meilisearch_sort_order }}
 ```
 
 ### Implementing your own `MeilisearchOptionModifier`

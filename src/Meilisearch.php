@@ -13,6 +13,7 @@ use Croox\StatamicMeilisearch\Modification\QueryTime\QueryTimeOptionModifier;
 use Croox\StatamicMeilisearch\Modification\RawResults;
 use Croox\StatamicMeilisearch\Modification\SearchSnippets;
 use Croox\StatamicMeilisearch\Modification\Pagination;
+use Croox\StatamicMeilisearch\Modification\SortOrder\SortOrderOptionModifier;
 
 class Meilisearch
 {
@@ -27,5 +28,6 @@ class Meilisearch
         Filtering::class,
         Pagination::class,
         QueryTimeOptionModifier::class,
+        SortOrderOptionModifier::class,
     ];
 }
