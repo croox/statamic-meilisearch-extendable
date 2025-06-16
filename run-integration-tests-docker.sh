@@ -21,6 +21,8 @@ docker run -d \
   -e MEILI_MASTER_KEY=$MEILISEARCH_KEY \
   getmeili/meilisearch:v1.15;
 
+sleep 3;
+
 docker run \
     --rm \
     --name $PHP_CONTAINER_NAME \

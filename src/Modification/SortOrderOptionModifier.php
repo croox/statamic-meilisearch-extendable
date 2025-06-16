@@ -5,11 +5,17 @@ namespace Croox\StatamicMeilisearchExtendable\Modification;
 use Croox\StatamicMeilisearchExtendable\Meilisearch\Index;
 use Croox\StatamicMeilisearchExtendable\Meilisearch\Query;
 use Croox\StatamicMeilisearchExtendable\Modification\MeilisearchOptionModifier;
+use Illuminate\Http\Request;
 
 class SortOrderOptionModifier extends MeilisearchOptionModifier
 {
     /** @var list<string> */
     private array $activeSort = [ ];
+
+    public function __construct(
+        private readonly Request $request,
+    ) {
+    }
 
     public function getMetadata(): array
     {
@@ -44,7 +50,7 @@ class SortOrderOptionModifier extends MeilisearchOptionModifier
 
         $options['sort'] = $options['sort'] ?? [ ];
 
-        $sortOrder = request()->get('sort_order');
+        $sortOrder = $this->request->get('sort_order');
         if (is_array($sortOrder)) {
             foreach ($sortOrder as $order) {
                 if (!is_string($order) || strpos($order, ':') === false) {

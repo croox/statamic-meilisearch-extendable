@@ -31,9 +31,29 @@ class Query extends QueryBuilder
      */
     public function getSearchResults()
     {
-        $results = $this->index->performSearch($this);
+        $results = array_values($this->index->performSearch($this)->getHits());
+        $results = $this->addSearchScore($results);
 
-        return collect($results->getHits());
+        return collect($results);
+    }
+
+    /**
+     * By default, statamic does a hardcoded descending sort by search_score. In order to preserve
+     * the sorting returned by meilisearch, we add a 'fake' search_score that is already descending.
+     *
+     * @param list<array<string, mixed>> $results
+     * @return list<array<string, mixed>>
+     */
+    private function addSearchScore(array $results): array
+    {
+        $withScore = [ ];
+
+        foreach ($results as $i => $result) {
+            $result['search_score'] = count($results) - $i;
+            $withScore[] = $result;
+        }
+
+        return $withScore;
     }
 
     public function getOffset(): ?int
