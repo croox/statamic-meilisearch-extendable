@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v4.0.0 - 2025-??-??
+## v4.0.0 - 2025-06-16
 ### Breaking Changes
 
 * Fork of `statamic-rad-pack/meilisearch` into `croox/statamic-meilisearch-extendable` in order to support additional
