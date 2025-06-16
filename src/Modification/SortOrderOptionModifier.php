@@ -70,7 +70,6 @@ class SortOrderOptionModifier extends MeilisearchOptionModifier
 
         $this->activeSort = $options['sort'];
         $options['showRankingScore'] = true;
-        $options['showRankingScoreDetails'] = true;
 
         return $options;
     }
