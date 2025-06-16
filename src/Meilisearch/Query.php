@@ -1,19 +1,58 @@
 <?php
 
-namespace StatamicRadPack\Meilisearch\Meilisearch;
+namespace Croox\StatamicMeilisearchExtendable\Meilisearch;
 
+use Illuminate\Support\Collection;
 use Statamic\Search\QueryBuilder;
 
+/**
+ * @property Index $index
+ */
 class Query extends QueryBuilder
 {
-    public function getSearchResults($query)
+    public function getQuery(): string
     {
-        $results = $this->index->searchUsingApi($query);
+        return $this->query;
+    }
 
-        return $results->map(function ($result, $i) {
-            $result['search_score'] = (int) ceil($result['_rankingScore'] * 1000);
+    protected function getCountForPagination(): ?int
+    {
+        $result = $this->index->performSearch($this, [
+            'hitsPerPage' => 1,
+            '_is_count' => true,
+        ]);
 
-            return $result;
-        });
+        return $result->getTotalHits();
+    }
+
+    /**
+     * @return Collection
+     * @api
+     */
+    public function getSearchResults()
+    {
+        $results = $this->index->performSearch($this);
+
+        return collect($results->getHits());
+    }
+
+    public function getOffset(): ?int
+    {
+        return $this->offset;
+    }
+
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    public function setWheres(array $where): void
+    {
+        $this->wheres = $where;
+    }
+
+    public function getWheres(): array
+    {
+        return $this->wheres;
     }
 }

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v4.0.0 - 2025-??-??
+### Breaking Changes
+
+* Fork of `statamic-rad-pack/meilisearch` into `croox/statamic-meilisearch-extendable` in order to support additional
+  features. All classes have moved from `StatamicRadPack\Meilisearch` to `Croox\StatamicMeilisearchExtendable`.
+
+
 ## v3.4.0 - 2025-03-04
 
 ### What's Changed

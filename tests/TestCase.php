@@ -1,9 +1,9 @@
 <?php
 
-namespace StatamicRadPack\Meilisearch\Tests;
+namespace Croox\StatamicMeilisearchExtendable\Tests;
 
 use Statamic\Testing\AddonTestCase;
-use StatamicRadPack\Meilisearch\ServiceProvider;
+use Croox\StatamicMeilisearchExtendable\ServiceProvider;
 
 class TestCase extends AddonTestCase
 {
@@ -11,22 +11,9 @@ class TestCase extends AddonTestCase
 
     protected $shouldFakeVersion = true;
 
-    protected function resolveApplicationConfiguration($app)
+    public static function provideTrueFalse(): \Generator
     {
-        parent::resolveApplicationConfiguration($app);
-
-        // add driver
-        $app['config']->set('statamic.search.drivers.meilisearch', [
-            'credentials' => [
-                'url' => 'http://localhost:7700',
-                'secret' => 'masterKey',
-            ],
-        ]);
-
-        // add index
-        $app['config']->set('statamic.search.indexes.meilisearch_index', [
-            'driver' => 'meilisearch',
-            'searchables' => ['collection:pages'],
-        ]);
+        yield [true];
+        yield [false];
     }
 }

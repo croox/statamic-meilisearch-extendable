@@ -1,25 +1,31 @@
 {
-    "name": "statamic-rad-pack/meilisearch",
-    "description": "meilisearch search driver for Statamic",
+    "name": "croox/statamic-meilisearch-extendable",
+    "description": "Extendable Statamic Meilisearch search driver",
     "keywords": [
         "statamic",
         "meilisearch",
         "search"
     ],
-    "homepage": "https://github.com/statamic-rad-pack/meilisearch",
+    "homepage": "https://github.com/croox/statamic-meilisearch-extendable",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Johannes Hertenstein",
+            "email": "hello@j6s.dev",
+            "homepage": "https://j6s.dev",
+            "role": "Maintainer"
+        },
         {
             "name": "Daniel Shields",
             "email": "daniel@karuna.co.za",
             "homepage": "https://twitter.com/k4runa",
-            "role": "Developer"
+            "role": "Developer (statamic-rad-pack/meilisearch)"
         },
         {
             "name": "Oliver Kaufmann",
             "email": "okaufmann91@gmail.com",
             "homepage": "https://twitter.com/okaufmannCH",
-            "role": "Co-Developer"
+            "role": "Co-Developer (statamic-rad-pack/meilisearch)"
         }
     ],
     "require": {
@@ -31,24 +37,30 @@
         "statamic/cms": "^5.0"
     },
     "require-dev": {
-        "laravel/pint": "^1.21",
+        "squizlabs/php_codesniffer": "^3.12",
+        "vimeo/psalm": "^6.10",
         "orchestra/testbench": "^8.14 || ^9.0 || ^10.0",
         "phpunit/phpunit": "^10.0 || ^11.5.10"
     },
     "autoload": {
         "psr-4": {
-            "StatamicRadPack\\Meilisearch\\": "src"
+            "Croox\\StatamicMeilisearchExtendable\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "StatamicRadPack\\Meilisearch\\Tests\\": "tests"
+            "Croox\\StatamicMeilisearchExtendable\\Tests\\": "tests"
         }
     },
     "scripts": {
         "test": "vendor/bin/phpunit --colors=always",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
-        "format": "php-cs-fixer fix --allow-risky=yes"
+        "analyze": "psalm",
+        "repair": "phpcbf",
+        "check": [
+            "phpcs",
+            "psalm"
+        ]
     },
     "config": {
         "allow-plugins": {
@@ -59,12 +71,12 @@
     "extra": {
         "laravel": {
             "providers": [
-                "StatamicRadPack\\Meilisearch\\ServiceProvider"
+                "Croox\\StatamicMeilisearchExtendable\\ServiceProvider"
             ]
         },
         "statamic": {
-            "name": "Meilisearch",
-            "description": "Meilisearch search driver for Statamic"
+            "name": "Meilisearch Extendable",
+            "description": "Extendable Meilisearch search driver for Statamic"
         }
     }
 }

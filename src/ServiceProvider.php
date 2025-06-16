@@ -1,27 +1,28 @@
 <?php
 
-namespace StatamicRadPack\Meilisearch;
+namespace Croox\StatamicMeilisearchExtendable;
 
+use Croox\StatamicMeilisearchExtendable\Commands\GenerateApiKeyCommand;
+use Croox\StatamicMeilisearchExtendable\Tags\MeilisearchMetadataTag;
 use Illuminate\Foundation\Application;
 use Meilisearch\Client;
 use Statamic\Facades\Search;
 use Statamic\Providers\AddonServiceProvider;
 
+/** @api */
 class ServiceProvider extends AddonServiceProvider
 {
-    public function bootAddon()
+    public function bootAddon(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/statamic-meilisearch.php', 'statamic-meilisearch');
+        $this->mergeConfigFrom(__DIR__ . '/../config/statamic-meilisearch.php', 'statamic-meilisearch');
 
         if ($this->app->runningInConsole()) {
-
             $this->publishes([
-                __DIR__.'/../config/statamic-meilisearch.php' => config_path('statamic-meilisearch.php'),
+                __DIR__ . '/../config/statamic-meilisearch.php' => config_path('statamic-meilisearch.php'),
             ], 'statamic-meilisearch-config');
-
         }
 
-        Search::extend('meilisearch', function (Application $app, array $config, $name, $locale = null) {
+        Search::extend('meilisearch', function (Application $app, array $config, string $name, ?string $locale = null) {
             $client = $app->makeWith(Client::class, [
                 'url' => $config['credentials']['url'],
                 'apiKey' => $config['credentials']['secret'],
@@ -34,5 +35,11 @@ class ServiceProvider extends AddonServiceProvider
                 'locale' => $locale,
             ]);
         });
+
+        $this->commands([
+            GenerateApiKeyCommand::class,
+        ]);
+
+        MeilisearchMetadataTag::register();
     }
 }
