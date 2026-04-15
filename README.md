@@ -1,5 +1,7 @@
 # Extendable Statamic Meilisearch Driver
 
+![Icon of the addon](./icon.png)
+
 This addon provides a [Meilisearch](https://www.meilisearch.com/) search driver for Statamic sites that provides additional
 meilisearch centric features such as facetting, filtering and sorting. Additionally, the driver is extendable, allowing you
 to add custom behaviour in your own application.
