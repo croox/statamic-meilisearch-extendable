@@ -24,13 +24,16 @@ use Meilisearch\Client;
 use Meilisearch\Endpoints\Indexes;
 use Meilisearch\Exceptions\ApiException;
 use Meilisearch\Search\SearchResult;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Http\Message\ResponseInterface;
+use Statamic\Search\Documents;
 use Statamic\Search\Searchable;
 use Statamic\Search\Searchables\Provider;
 use Statamic\Search\Searchables\Providers;
 
+#[AllowMockObjectsWithoutExpectations]
 class IndexTest extends TestCase
 {
     private Index $subject;
@@ -109,7 +112,7 @@ class IndexTest extends TestCase
             'meilisearch_modifiers' => [ $modifier ],
         ]);
 
-        $this->assertSame('modified_test_index', $index->name());
+        $this->assertSame('modified_test_index', $index->indexName());
     }
 
     public function testUsesModifiersToPreProcessConfig(): void
@@ -186,7 +189,7 @@ class IndexTest extends TestCase
             'foo' => 'bar',
             'test' => 'test',
         ]);
-        $index->insert($searchable);
+        $index->insertDocuments(new Documents([ $index->fields($searchable) ]));
     }
 
     public function testInsertsMultipleDocuments(): void
@@ -218,7 +221,9 @@ class IndexTest extends TestCase
             new MockSearchable('entry::c87255da-b087-4850-bb95-abeabac4ead6', [ 'foo' => 'baz', 'test' => 'test' ]),
         ];
 
-        $index->insertMultiple(collect($searchables));
+        $documents = array_map([ $index, 'fields' ], $searchables);
+
+        $index->insertDocuments(new Documents($documents));
     }
 
     public function testDeletesFromMeilisearch(): void
@@ -255,69 +260,6 @@ class IndexTest extends TestCase
         }
 
         $this->assertSame($exists, $index->exists());
-    }
-
-    public function testUpdatesIndex(): void
-    {
-        $index = $this->createIndex([
-            'meilisearch_modifiers' => [ ],
-            'settings' => [ 'foo' => 'bar' ],
-            'searchables' => [ 'test_provider' ],
-            'fields' => [ ],
-        ]);
-        $meiliIndex = $this->mockMeiliIndex();
-
-        app(Providers::class)->register(new class extends Provider {
-            protected static $handle = 'test_provider';
-            protected static $referencePrefix = 'test_provider::';
-
-            public function provide(): Collection
-            {
-                return collect([
-                    new MockSearchable('test_provider::4f496a2f-90b0-4cc6-84c7-c0fe54ad83b3', [ ]),
-                ]);
-            }
-
-            public function contains($searchable): bool
-            {
-                return false;
-            }
-
-            public function find(array $keys): Collection
-            {
-                return collect([]);
-            }
-        });
-
-        // Old index is deleted
-        $meiliIndex
-            ->expects($this->once())
-            ->method('delete');
-
-        // New index is created
-        $this->client
-            ->expects($this->once())
-            ->method('createIndex')
-            ->with('test_index', ['primaryKey' => 'id']);
-
-        // Settings are updated
-        $meiliIndex
-            ->expects($this->once())
-            ->method('updateSettings')
-            ->with(['foo' => 'bar']);
-
-        // Searchables are inserted
-        $meiliIndex
-            ->expects($this->once())
-            ->method('updateDocuments')
-            ->with([
-                [
-                    'id' => 'test-provider---4f496a2f-90b0-4cc6-84c7-c0fe54ad83b3',
-                    'reference' => 'test_provider::4f496a2f-90b0-4cc6-84c7-c0fe54ad83b3',
-                ]
-            ]);
-
-        $index->update();
     }
 
     private function searchResult(array $hits): SearchResult

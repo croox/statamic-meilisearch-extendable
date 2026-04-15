@@ -4,7 +4,9 @@ namespace Croox\StatamicMeilisearchExtendable\Tests\Unit\Modification;
 
 use Croox\StatamicMeilisearchExtendable\Modification\AdditionalQueryOptions;
 use Meilisearch\Search\SearchResult;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class AdditionalQueryOptionsTest extends OptionModifierTestCase
 {
     public function testAddsQueryOptionsFromConfiguration(): void

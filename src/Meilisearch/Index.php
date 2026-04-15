@@ -25,9 +25,11 @@ class Index extends BaseIndex
     /** @var list<MeilisearchOptionModifier> */
     private array $modifiers = [ ];
 
+    private string $indexName;
+
     public function __construct(Client $client, string $name, array $config, ?string $locale = null)
     {
-        [ $name, $config ] = $this->initializeModifiers($name, $config);
+        [ $this->indexName, $config ] = $this->initializeModifiers($name, $config);
 
         $this->client = $client;
 
@@ -75,30 +77,19 @@ class Index extends BaseIndex
         return (new Query($this))->query($query);
     }
 
+    /** @return array<string, mixed> */
+    public function fields(Searchable $searchable): array
+    {
+        return array_merge(
+            $this->searchables()->fields($searchable),
+            $this->getDefaultFields($searchable)
+        );
+    }
+
     /** @param Searchable $document */
     public function insert($document): self
     {
         return $this->insertMultiple(collect([$document]));
-    }
-
-    /** @param Collection<int, Searchable> $documents */
-    public function insertMultiple($documents): self
-    {
-        $documents
-            ->chunk(config('statamic-meilisearch.insert_chunk_size', 100))
-            ->each(function ($documents) {
-                $documents = $documents
-                    ->map(fn ($document) => array_merge(
-                        $this->searchables()->fields($document),
-                        $this->getDefaultFields($document),
-                    ))
-                    ->values()
-                    ->toArray();
-
-                $this->insertDocuments(new Documents($documents));
-            });
-
-        return $this;
     }
 
     /** @param mixed $document */
@@ -118,12 +109,12 @@ class Index extends BaseIndex
         }
     }
 
-    protected function insertDocuments(Documents $documents): void
+    public function insertDocuments(Documents $documents): void
     {
-        $this->getIndex()->updateDocuments($documents->all());
+        $this->getIndex()->updateDocuments($documents->values()->all());
     }
 
-    protected function deleteIndex(): void
+    public function deleteIndex(): void
     {
         try {
             $this->getIndex()->delete();
@@ -135,7 +126,7 @@ class Index extends BaseIndex
     protected function createIndex(): void
     {
         try {
-            $this->client->createIndex($this->name, ['primaryKey' => 'id']);
+            $this->client->createIndex($this->indexName, ['primaryKey' => 'id']);
 
             if (! isset($this->config['settings'])) {
                 return;
@@ -153,7 +144,9 @@ class Index extends BaseIndex
         $this->deleteIndex();
         $this->createIndex();
 
-        $this->searchables()->lazy()->each(fn (mixed $searchables) => $this->insertMultiple($searchables));
+        $this->searchables()->lazy()->each(function (mixed $searchables): void {
+            $this->insertMultiple($searchables);
+        });
 
         return $this;
     }
@@ -184,7 +177,7 @@ class Index extends BaseIndex
 
     private function getIndex(): Indexes
     {
-        return $this->client->index($this->name);
+        return $this->client->index($this->indexName);
     }
 
     private function getDefaultFields(Searchable $entry): array
@@ -279,5 +272,10 @@ class Index extends BaseIndex
         }
 
         return $metadata;
+    }
+
+    public function indexName(): string
+    {
+        return $this->indexName;
     }
 }

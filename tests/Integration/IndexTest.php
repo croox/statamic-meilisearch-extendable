@@ -14,20 +14,20 @@ class IndexTest extends IntegrationTestCase
             ->save();
 
         $entry1 = Facades\Entry::make()
-            ->id('test-2')
+            ->id('test-1')
             ->collection('pages')
             ->data(['title' => 'Entry 1'])
             ->save();
 
         $entry2 = Facades\Entry::make()
-            ->id('test-1')
+            ->id('test-2')
             ->collection('pages')
             ->data(['title' => 'Entry 2'])
             ->save();
 
-        sleep(1); // give meili some time to process
+        sleep(2); // give meili some time to process
 
-        $result = $this->getIndex()->search('Entry')->getSearchResults();
+        $result = $this->index->search('Entry')->getSearchResults();
         $this->assertCount(2, $result);
     }
 
@@ -39,31 +39,30 @@ class IndexTest extends IntegrationTestCase
             ->save();
 
         $entry1 = Facades\Entry::make()
-            ->id('test-2')
+            ->id('test-1')
             ->collection('pages')
             ->data(['title' => 'Entry 1'])
             ->save();
 
         $entry2 = tap(Facades\Entry::make()
-            ->id('test-1')
+            ->id('test-2')
             ->collection('pages')
             ->data(['title' => 'Entry 2']))
             ->save();
 
         sleep(1); // give meili some time to process
 
-        $index = $this->getIndex();
 
-        $results = $index->search('Entry')->getSearchResults()->pluck('title');
+        $results = $this->index->search('Entry')->getSearchResults()->pluck('title');
 
         $this->assertContains('Entry 1', $results);
         $this->assertContains('Entry 2', $results);
 
         $entry2->merge(['title' => 'Entry 2 Updated'])->save();
 
-        sleep(1); // give meili some time to process
+        sleep(2); // give meili some time to process
 
-        $results = $index->search('Entry')->getSearchResults()->pluck('title');
+        $results = $this->index->search('Entry')->getSearchResults()->pluck('title');
         $this->assertContains('Entry 2 Updated', $results);
     }
 
@@ -75,24 +74,22 @@ class IndexTest extends IntegrationTestCase
             ->save();
 
         $entry1 = Facades\Entry::make()
-            ->id('test-2')
+            ->id('test-1')
             ->collection('pages')
             ->data(['title' => 'Entry 1'])
             ->save();
 
         $entry2 = tap(Facades\Entry::make()
-            ->id('test-1')
+            ->id('test-2')
             ->collection('pages')
             ->data(['title' => 'Entry 2']))
             ->save();
 
         $entry2->delete();
 
-        $index = $this->getIndex();
+        sleep(2); // give meili some time to process
 
-        sleep(1); // give meili some time to process
-
-        $results = $index->search('Entry')->getSearchResults();
+        $results = $this->index->search('Entry')->getSearchResults();
         $this->assertCount(1, $results);
     }
 }

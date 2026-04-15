@@ -8,8 +8,10 @@ use Croox\StatamicMeilisearchExtendable\Tests\TestCase;
 use Meilisearch\Client;
 use Meilisearch\Endpoints\Indexes;
 use Meilisearch\Search\SearchResult;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 
+#[AllowMockObjectsWithoutExpectations]
 class QueryTest extends TestCase
 {
     private MockObject&Client $client;

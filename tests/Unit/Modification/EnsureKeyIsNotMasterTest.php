@@ -8,9 +8,11 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
 use Meilisearch\Exceptions\ApiException;
 use Meilisearch\Search\SearchResult;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ResponseInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class EnsureKeyIsNotMasterTest extends OptionModifierTestCase
 {
     #[DataProvider('provideTrueFalse')]

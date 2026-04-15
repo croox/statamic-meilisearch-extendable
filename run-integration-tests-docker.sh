@@ -19,7 +19,7 @@ docker run -d \
   --name $MEILISEARCH_CONTAINER_NAME \
   --network $NETWORK_NAME \
   -e MEILI_MASTER_KEY=$MEILISEARCH_KEY \
-  getmeili/meilisearch:v1.15;
+  getmeili/meilisearch:v1.42;
 
 sleep 3;
 
@@ -29,10 +29,11 @@ docker run \
     --network $NETWORK_NAME \
     -v $(pwd):/var/www/html \
     -w /var/www/html \
+    -e PHP_EXTENSION_GD=1 \
     -e MEILISEARCH_URL=http://$MEILISEARCH_CONTAINER_NAME:7700 \
     -e MEILISEARCH_KEY=$MEILISEARCH_KEY \
     -it \
-    php:8.3-cli /var/www/html/vendor/bin/phpunit --testsuite Integration;
+    thecodingmachine/php:8.4-v4-cli /var/www/html/vendor/bin/phpunit --testsuite Integration;
 
 docker stop $MEILISEARCH_CONTAINER_NAME;
 docker rm -f $MEILISEARCH_CONTAINER_NAME;

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v5.0.0 - ????-??-??
+### What's Changed
+* Supports Laravel 13 by @duncanmcclean in https://github.com/statamic-rad-pack/meilisearch/pull/49
+* Add 'Indexes' clarify the configuration place for indexes by @ym-henkelhiedl in https://github.com/statamic-rad-pack/meilisearch/pull/43
+* Update README.md by @ym-henkelhiedl in https://github.com/statamic-rad-pack/meilisearch/pull/44
+* Statamic 6 by @duncanmcclean in https://github.com/statamic-rad-pack/meilisearch/pull/46
+
 ## v4.0.0 - 2025-06-16
 ### Breaking Changes
 
@@ -203,20 +210,6 @@ In consultation with @tao, I have revised the adapter, and we present the first 
         'collection' => fn($collection) => $collection?->handle(),
     ],
  ],
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```
 - The Package Service Provider has been renamed to `StatamicmeilisearchServiceProvider`. If you have problems updating, you may have to remove the package with `composer remove statamic-rad-pack/meilisearch` and add it again with `composer require statamic-rad-pack/meilisearch`.
 

@@ -7,6 +7,9 @@ use Croox\StatamicMeilisearchExtendable\Modification\Filtering;
 use Meilisearch\Search\SearchResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
+#[AllowMockObjectsWithoutExpectations]
 class FilteringTest extends OptionModifierTestCase
 {
 

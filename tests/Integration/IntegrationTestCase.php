@@ -8,6 +8,20 @@ use Statamic\Facades;
 
 class IntegrationTestCase extends TestCase
 {
+    protected Index $index;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->index = Facades\Search::index('meilisearch_index');
+    }
+
+    public function tearDown(): void
+    {
+        $this->index->deleteIndex();
+        parent::tearDown();
+    }
     protected function resolveApplicationConfiguration($app)
     {
         parent::resolveApplicationConfiguration($app);
@@ -22,7 +36,10 @@ class IntegrationTestCase extends TestCase
             ],
         ]);
 
-        // add index
+        $app['config']->set('statamic.search.indexes.cp', [
+            'driver' => 'null',
+        ]);
+
         $app['config']->set('statamic.search.indexes.meilisearch_index', [
             'driver' => 'meilisearch',
             'searchables' => ['collection:pages'],
@@ -30,10 +47,5 @@ class IntegrationTestCase extends TestCase
                 'ensure_key_is_not_master' => false, // disable this for testing
             ]
         ]);
-    }
-
-    protected function getIndex(): Index
-    {
-        return Facades\Search::index('meilisearch_index');
     }
 }

@@ -50,7 +50,7 @@ class SortOrderOptionModifier extends MeilisearchOptionModifier
 
         $options['sort'] = $options['sort'] ?? [ ];
 
-        $sortOrder = $this->request->get('sort_order');
+        $sortOrder = $this->request->input('sort_order');
         if (is_array($sortOrder)) {
             foreach ($sortOrder as $order) {
                 if (!is_string($order) || strpos($order, ':') === false) {

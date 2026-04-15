@@ -4,8 +4,10 @@ namespace Croox\StatamicMeilisearchExtendable\Tests\Unit\Modification;
 
 use Croox\StatamicMeilisearchExtendable\ConfigurationException;
 use Croox\StatamicMeilisearchExtendable\Modification\IndexNamePrefix;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+#[AllowMockObjectsWithoutExpectations]
 class IndexNamePrefixTest extends OptionModifierTestCase
 {
     public function testPrefixesIndexName(): void
@@ -14,7 +16,7 @@ class IndexNamePrefixTest extends OptionModifierTestCase
 
         $this->assertEquals(
             'my-project__staging__test-index',
-            $index->name()
+            $index->indexName()
         );
     }
 
@@ -28,7 +30,7 @@ class IndexNamePrefixTest extends OptionModifierTestCase
 
         $this->assertEquals(
             'custom-index-name',
-            $index->name()
+            $index->indexName()
         );
     }
 

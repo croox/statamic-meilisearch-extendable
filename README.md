@@ -8,9 +8,9 @@ to add custom behaviour in your own application.
 
 ## Requirements
 
-* PHP 8.1+
-* Laravel 10+
-* Statamic 5
+* PHP 8.3+
+* Laravel 11+
+* Statamic 6
 * Meilisearch 1.0+
 
 ## Installation

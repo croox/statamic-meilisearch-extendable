@@ -14,8 +14,6 @@ class ServiceProvider extends AddonServiceProvider
 {
     public function bootAddon(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/statamic-meilisearch.php', 'statamic-meilisearch');
-
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../config/statamic-meilisearch.php' => config_path('statamic-meilisearch.php'),
