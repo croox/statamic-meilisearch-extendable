@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v5.0.0 - ????-??-??
+## v5.0.0 - 2026-04-29
 ### What's Changed
 * Supports Laravel 13 by @duncanmcclean in https://github.com/statamic-rad-pack/meilisearch/pull/49
 * Add 'Indexes' clarify the configuration place for indexes by @ym-henkelhiedl in https://github.com/statamic-rad-pack/meilisearch/pull/43
