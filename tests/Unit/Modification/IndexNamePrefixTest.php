@@ -20,6 +20,16 @@ class IndexNamePrefixTest extends OptionModifierTestCase
         );
     }
 
+    public function testIndexNameContainsLocale(): void
+    {
+        $index = $this->createIndex(new IndexNamePrefix('My Project', 'staging'), [ ], 'de');
+
+        $this->assertEquals(
+            'my-project__staging__test-index-de',
+            $index->indexName()
+        );
+    }
+
     public function testAllowsSettingOfExplicitIndexName(): void
     {
         $index = $this->createIndex(new IndexNamePrefix('My Project', 'staging'), [

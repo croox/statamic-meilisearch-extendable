@@ -20,7 +20,7 @@ abstract class OptionModifierTestCase extends TestCase
         $this->client = $this->createMock(Client::class);
     }
 
-    protected function createIndex(MeilisearchOptionModifier $modifier, array $config): Index
+    protected function createIndex(MeilisearchOptionModifier $modifier, array $config, ?string $locale = null): Index
     {
         return new Index(
             $this->client,
@@ -28,7 +28,8 @@ abstract class OptionModifierTestCase extends TestCase
             [
                 'meilisearch_modifiers' => [ $modifier ],
                 ...$config,
-            ]
+            ],
+            $locale,
         );
     }
 

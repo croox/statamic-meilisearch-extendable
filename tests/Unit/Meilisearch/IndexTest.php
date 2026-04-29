@@ -112,6 +112,9 @@ class IndexTest extends TestCase
             'meilisearch_modifiers' => [ $modifier ],
         ]);
 
+        // IndexName is pre-processed but name is still the default one since statamic requires it
+        // to remain unchanged
+        $this->assertSame('test_index', $index->name());
         $this->assertSame('modified_test_index', $index->indexName());
     }
 

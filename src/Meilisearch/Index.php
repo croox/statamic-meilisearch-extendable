@@ -29,18 +29,19 @@ class Index extends BaseIndex
 
     public function __construct(Client $client, string $name, array $config, ?string $locale = null)
     {
-        [ $this->indexName, $config ] = $this->initializeModifiers($name, $config);
-
+        [ $generateIndexName, $config ] = $this->initializeModifiers($config);
         $this->client = $client;
 
         parent::__construct($name, $config, $locale);
+
+        $this->indexName = $generateIndexName($this->name());
     }
 
     /**
-     * @return list{string, array}
+     * @return list{(callable(string): string), array}
      * @throws ConfigurationException
      */
-    private function initializeModifiers(string $name, array $config): array
+    private function initializeModifiers(array $config): array
     {
         foreach ($config['meilisearch_modifiers'] ?? Meilisearch::DEFAULT_MODIFIERS as $modifier) {
             /** @psalm-suppress PropertyTypeCoercion */
@@ -57,9 +58,15 @@ class Index extends BaseIndex
                 ));
             }
 
-            $name = $modifier->preProcessIndexName($name, $config);
             $config = $modifier->preProcessConfiguration($config);
         }
+
+        $generateIndexName = function (string $name) use ($config): string {
+            foreach ($this->modifiers as $modifier) {
+                $name = $modifier->preProcessIndexName($name, $config);
+            }
+            return $name;
+        };
 
         if (!Cache::get('croox_meilisearch_config_validated')) {
             foreach ($this->modifiers as $modifier) {
@@ -68,7 +75,7 @@ class Index extends BaseIndex
             Cache::forever('croox_meilisearch_config_validated', true);
         }
 
-        return [ $name, $config ];
+        return [ $generateIndexName, $config ];
     }
 
     /** @param string $query */
